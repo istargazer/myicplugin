@@ -6,13 +6,14 @@
 
     <depends>com.intellij.modules.platform</depends>
 
+    <depends>com.intellij.java</depends>
+
     <resource-bundle>messages.MyBundle</resource-bundle>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.istargazer.myicplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.istargazer.myicplugin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
+    <actions>
+        <action id="LiveTest" class="com.github.istargazer.myicplugin.action.LiveTest" text="livetest"
+                description="action live test">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>

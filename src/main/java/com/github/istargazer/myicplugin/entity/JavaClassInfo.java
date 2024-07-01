@@ -33,4 +33,13 @@ public class JavaClassInfo {
     public void setMethodInfoList(List<JavaMethodInfo> methodInfoList) {
         this.methodInfoList = methodInfoList;
     }
+
+    @Override
+    public String toString() {
+        return "JavaClassInfo{" +
+                "packageName='" + packageName + '\'' +
+                ", fullClassName='" + fullClassName + '\'' +
+                ", methodInfoList=" + methodInfoList +
+                '}';
+    }
 }

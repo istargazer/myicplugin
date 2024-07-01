@@ -15,6 +15,8 @@ public class JavaMethodInfo {
     private String parameters;
     private String body;
 
+    private String signature;
+
     private PsiMethod method;
 
     private List<PsiJavaFile> references;
@@ -59,6 +61,14 @@ public class JavaMethodInfo {
         this.body = body;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     public PsiMethod getMethod() {
         return method;
     }
@@ -73,5 +83,19 @@ public class JavaMethodInfo {
 
     public void setReferences(List<PsiJavaFile> references) {
         this.references = references;
+    }
+
+    @Override
+    public String toString() {
+        return "JavaMethodInfo{" +
+                "modifier='" + modifier + '\'' +
+                ", returnType='" + returnType + '\'' +
+                ", name='" + name + '\'' +
+                ", parameters='" + parameters + '\'' +
+                ", body='" + body + '\'' +
+                ", signature='" + signature + '\'' +
+                ", method=" + method +
+                ", references=" + references +
+                '}';
     }
 }

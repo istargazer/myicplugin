@@ -10,11 +10,9 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ClassUtil {
 
@@ -26,7 +24,7 @@ public class ClassUtil {
      * @return true/false
      */
     public static boolean isJavaFile(PsiFile file) {
-        return Objects.nonNull(file) && JAVA_FILE_TYPE.equals(file);
+        return Objects.nonNull(file) && JAVA_FILE_TYPE.equals(file.getFileType());
     }
 
     /**
@@ -44,6 +42,7 @@ public class ClassUtil {
         JavaClassInfo result = new JavaClassInfo();
         result.setPackageName(file.getPackageName());
         result.setFullClassName(file.getPackageName() + "." + file.getName());
+        result.setMethodInfoList(generateMethodInfo(file));
         return result;
     }
 
@@ -54,20 +53,36 @@ public class ClassUtil {
             PsiMethod[] methods = clazz.getAllMethods();
             for (PsiMethod m : methods) {
                 if (!m.getModifierList().hasModifierProperty(PsiModifier.PRIVATE)) {
-                    result.add(createJavaMethodInfo(m, false));
+                    result.add(createJavaMethodInfo(m));
                 }
             }
         }
         return result;
     }
 
-    private static JavaMethodInfo createJavaMethodInfo(PsiMethod method, boolean needReference) {
+    public static JavaMethodInfo createJavaMethodInfo(PsiMethod method) {
+        return createJavaMethodInfo(method, false);
+    }
+
+    public static JavaMethodInfo createJavaMethodInfo(PsiMethod method, boolean needReference) {
         JavaMethodInfo result = new JavaMethodInfo();
         result.setModifier(method.getModifierList().getText());
-        result.setReturnType(method.getReturnType().getPresentableText());
+        PsiType psiType = method.getReturnType();
+        if (Objects.nonNull(psiType)) {
+            result.setReturnType(psiType.getPresentableText());
+        } else {
+            // 没有返回类型时，设置返回类型为 void
+            result.setReturnType("void");
+        }
         result.setName(method.getName());
         result.setParameters(method.getParameterList().getText());
+        result.setSignature(String.format("%s %s %s %s",result.getModifier(), result.getReturnType(), result.getName(), result.getParameters()));
         result.setMethod(method);
+        if (Objects.nonNull(method.getBody())) {
+            result.setBody(method.getBody().getText());
+        } else {
+            result.setBody(method.getText());
+        }
         if (needReference) {
             result.setReferences(resolveReference(method));
         }
@@ -75,9 +90,22 @@ public class ClassUtil {
     }
 
     private static List<PsiJavaFile> resolveReference(PsiMethod method) {
-        List<PsiJavaFile> result = new ArrayList<>();
-
-        return result;
+        final List<PsiJavaFile> result = new ArrayList<>();
+        PsiFile psiFile = method.getContainingFile();
+        method.accept(new JavaRecursiveElementVisitor() {
+            @Override
+            public void visitReferenceElement(@NotNull PsiJavaCodeReferenceElement reference) {
+                super.visitReferenceElement(reference);
+                PsiElement element = reference.resolve();
+                if (Objects.nonNull(element)) {
+                    PsiFile file = element.getContainingFile();
+                    if (isJavaFile(file)) {
+                       result.add((PsiJavaFile) file);
+                    }
+                }
+            }
+        });
+        return result.stream().distinct().filter(f -> Objects.nonNull(f) && !psiFile.equals(f)).toList();
     }
 
     private static List<PsiJavaFile> findCurrentModuleImportsInFile(PsiJavaFile file, final Module module) {
@@ -116,7 +144,7 @@ public class ClassUtil {
         return ModuleUtil.findModuleForFile(file);
     }
 
-    private static boolean checkFileInModule(Module module, VirtualFile vFile) {
-        return ModuleUtil.isModuleFile(module, vFile);
+    public static boolean checkFileInModule(Module module, VirtualFile vFile) {
+        return ModuleUtil.moduleContainsFile(module, vFile, false);
     }
 }

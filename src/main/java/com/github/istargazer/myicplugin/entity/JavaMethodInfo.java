@@ -9,6 +9,9 @@ import java.util.List;
  * 解析java方法内容
  */
 public class JavaMethodInfo {
+    /**
+     *
+     */
     private String modifier;
     private String returnType;
     private String name;

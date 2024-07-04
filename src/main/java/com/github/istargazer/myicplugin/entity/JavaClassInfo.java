@@ -6,8 +6,21 @@ import java.util.List;
 * 解析java类内容
  */
 public class JavaClassInfo {
+    /**
+     * class package name
+     */
     private String packageName;
+    /**
+     * class name
+     */
+    private String name;
+    /**
+     * class package name + . + class name
+     */
     private String fullClassName;
+    /**
+     *
+     */
     private List<JavaMethodInfo> methodInfoList;
 
     public String getPackageName() {
@@ -16,6 +29,14 @@ public class JavaClassInfo {
 
     public void setPackageName(String packageName) {
         this.packageName = packageName;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getFullClassName() {
@@ -38,6 +59,7 @@ public class JavaClassInfo {
     public String toString() {
         return "JavaClassInfo{" +
                 "packageName='" + packageName + '\'' +
+                ", name='" + name + '\'' +
                 ", fullClassName='" + fullClassName + '\'' +
                 ", methodInfoList=" + methodInfoList +
                 '}';
